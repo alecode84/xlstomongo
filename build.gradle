@@ -1,0 +1,47 @@
+plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.micronaut.application") version "4.3.2"
+    id("io.micronaut.aot") version "4.3.2"
+}
+
+version = "0.1"
+group = "com.alecode"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor("io.micronaut.data:micronaut-data-document-processor")
+    annotationProcessor("info.picocli:picocli-codegen")
+    implementation("builders.dsl:spreadsheet-builder-poi:2.2.1")
+    implementation("info.picocli:picocli")
+    implementation("io.micronaut:micronaut-router:4.3.8")
+    implementation("io.micronaut:micronaut-jackson-databind")
+    implementation("io.micronaut.mongodb:micronaut-mongo-reactive")
+    implementation("io.micronaut.mongodb:micronaut-mongo-sync")
+    implementation("io.micronaut.picocli:micronaut-picocli")
+    runtimeOnly("ch.qos.logback:logback-classic")
+}
+
+
+application {
+    mainClass.set("com.alecode.Application")
+}
+java {
+    sourceCompatibility = JavaVersion.toVersion("17")
+    targetCompatibility = JavaVersion.toVersion("17")
+}
+
+
+graalvmNative.toolchainDetection = false
+micronaut {
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("com.alecode.*")
+    }
+}
+
+
+
