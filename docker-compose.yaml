@@ -1,0 +1,41 @@
+---
+
+services:
+  gradle:
+    image: gradle:8.5-jdk17-jammy
+    container_name: xlstomongo
+    command: gradle run
+    environment:
+      # override application.properties to use "mongo" as hostname instead of "localhost"
+      # using "mongo" as host connects it to the "mongo" service in this composition.
+      MONGODB_SERVERS_MONGOXLS_URI: mongodb://mongo:27017
+    volumes:
+      - .:/home/gradle
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  mongo:
+    image: mongo:7-jammy
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 5m
+      timeout: 10s
+      start_period: 5s
+      start_interval: 2s
+
+  # mongo UI will be available at http://localhost:${MONGO_UI_PORT}/ (port defined in .env file)
+  # e.g. http://admin:pass@localhost:8081/
+  mongo-express:
+    image: mongo-express:1
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: pass
+    ports:
+      - ${MONGO_UI_PORT}:8081
+    depends_on:
+      mongo:
+        condition: service_healthy
+  
+  
+    
